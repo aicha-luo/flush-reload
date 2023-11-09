@@ -38,7 +38,7 @@ main:
 	pop rbx
 	xor rax, rax
 	xor rdx, rdx
-	mov rcx, 10000
+	mov rcx, 1000
 	// flush+reload
 	.hot_loop:
 		// Do flush
@@ -47,7 +47,7 @@ main:
 		// do_nothing()*eax
 		//	forces us to wait.
 		//	Not great, but using usleep introduced noise
-		mov eax, 2000000
+		mov eax, 50000000
 		.wait_loop:
 			dec eax
 			jnz .wait_loop
@@ -63,10 +63,13 @@ main:
 		rdtsc
 		// Sub
 		sub eax, esi
-		cmp eax, 800
-		jle .no_trim
-		mov eax, 800
-		.no_trim:
+		cmp eax, 200
+		jle .is_one
+		mov eax, 0
+		jmp .is_after
+		.is_one:
+		mov eax, 1
+		.is_after:
 		
 		push rcx
 		lea rdi, FORMAT[rip] 
