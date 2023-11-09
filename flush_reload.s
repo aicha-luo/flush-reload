@@ -2,7 +2,7 @@
 .section .rodata
 
 FILENAME:
-	.string "/bin/whoami"
+	.string "/bin/sudo"
 
 FORMAT:
 	.string "%d\n"
@@ -38,6 +38,7 @@ main:
 	pop rbx
 	xor rax, rax
 	xor rdx, rdx
+	mov rcx, 10000
 	// flush+reload
 	.hot_loop:
 		// Do flush
@@ -46,7 +47,7 @@ main:
 		// do_nothing()*eax
 		//	forces us to wait.
 		//	Not great, but using usleep introduced noise
-		mov eax, 5000000
+		mov eax, 2000000
 		.wait_loop:
 			dec eax
 			jnz .wait_loop
@@ -62,12 +63,17 @@ main:
 		rdtsc
 		// Sub
 		sub eax, esi
+		cmp eax, 800
+		jle .no_trim
+		mov eax, 800
+		.no_trim:
 		
-		push rbx
+		push rcx
 		lea rdi, FORMAT[rip] 
 		mov esi, eax
 		xor eax, eax
 		call printf
-		pop rbx
-		jmp .hot_loop
+		pop rcx
+		sub rcx, 1
+		jnz .hot_loop
 	ret
