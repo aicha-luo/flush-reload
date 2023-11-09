@@ -38,7 +38,7 @@ main:
 	pop rbx
 	xor rax, rax
 	xor rdx, rdx
-	mov rcx, 1000
+	mov rcx, 4000
 	// flush+reload
 	.hot_loop:
 		// Do flush
@@ -47,8 +47,12 @@ main:
 		// do_nothing()*eax
 		//	forces us to wait.
 		//	Not great, but using usleep introduced noise
-		mov eax, 50000000
+		mov eax, 25000000
 		.wait_loop:
+			nop
+			nop
+			nop
+			nop
 			dec eax
 			jnz .wait_loop
 		mfence

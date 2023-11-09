@@ -8,7 +8,7 @@
 
 #define PAGE_SIZE 4096
 #define READ_SIZE 4096
-#define DELAY 100000000
+#define DELAY 1000000000
 //#define DELAY 1000000000
 
 int main(int argc, char** argv){
