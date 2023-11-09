@@ -63,6 +63,7 @@ main:
 		rdtsc
 		// Sub
 		sub eax, esi
+		// Defined as cache hit if <200
 		cmp eax, 200
 		jle .is_one
 		mov eax, 0
@@ -71,12 +72,17 @@ main:
 		mov eax, 1
 		.is_after:
 		
+		// We needed a push to fix frame,
+		//	so just save counter
 		push rcx
+		// Print result (1 or 0)
 		lea rdi, FORMAT[rip] 
 		mov esi, eax
 		xor eax, eax
 		call printf
 		pop rcx
+
+		// Goto start loop, dec counter
 		sub rcx, 1
 		jnz .hot_loop
 	ret
