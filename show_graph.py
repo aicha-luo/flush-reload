@@ -34,5 +34,5 @@ for line in sys.stdin:
 if len(sys.argv) > 1:
     plt.title(sys.argv[1])
 
-plt.scatter(xs,ys)
+plt.plot(xs,ys)
 plt.show()
