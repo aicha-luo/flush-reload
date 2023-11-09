@@ -47,7 +47,7 @@ main:
 		// do_nothing()*eax
 		//	forces us to wait.
 		//	Not great, but using usleep introduced noise
-		mov eax, 25000000
+		mov eax, 20000000
 		.wait_loop:
 			nop
 			nop
