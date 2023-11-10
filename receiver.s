@@ -1,8 +1,10 @@
 .intel_syntax noprefix
 .section .rodata
 
+
 FILENAME:
-	.string "/bin/sudo"
+	.string "<FILE>"
+	.word 0
 
 FORMAT:
 	.string "%d\n"
@@ -38,7 +40,7 @@ main:
 	pop rbx
 	xor rax, rax
 	xor rdx, rdx
-	mov rcx, 4000
+	mov rcx, 3200000
 	// flush+reload
 	.hot_loop:
 		// Do flush
@@ -47,14 +49,14 @@ main:
 		// do_nothing()*eax
 		//	forces us to wait.
 		//	Not great, but using usleep introduced noise
-		mov eax, 20000000
+		rdtsc
+		mov esi, eax
 		.wait_loop:
 			nop
-			nop
-			nop
-			nop
-			dec eax
-			jnz .wait_loop
+			rdtsc
+			sub eax, esi
+			cmp eax, 10000
+			jle .wait_loop
 		mfence
 		lfence
 		rdtsc
@@ -68,16 +70,22 @@ main:
 		// Sub
 		sub eax, esi
 		// Defined as cache hit if <200
-		cmp eax, 200
+		cmp eax, 230
 		jle .is_one
 		mov eax, 0
 		jmp .is_after
 		.is_one:
+		// 200 instructions to simulate load
+		// Keep us on track
+		mov eax, 200
+		.fake_load:
+			nop
+			sub eax, 1
+			jnz .fake_load
 		mov eax, 1
 		.is_after:
 		
 		// We needed a push to fix frame,
-		//	so just save counter
 		push rcx
 		// Print result (1 or 0)
 		lea rdi, FORMAT[rip] 
