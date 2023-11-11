@@ -1,14 +1,21 @@
 # Flush+Reload
 
+Build
 ```
-gcc -masm=intel flush_reload.s
-./a.out
-```
-
-Then in another tab
-
-```
-while :; do whoami; done
+./build.sh
 ```
 
-Running whoami in another tab should make the wait time for memory access go down.
+Run
+```
+(./bin/clock_receiver > clock &); (./bin/data_receiver > data&); ./bin/transmitter sample
+```
+
+Parse
+```
+./parser/parser2.py clock data raw
+```
+
+Graph (debug)
+```
+./show_graph.py < clock
+```
