@@ -2,8 +2,11 @@
 .section .rodata
 
 
-FILENAME:
-	.string "<FILE>"
+CLOCK_FILE:
+	.string "/bin/whoami"
+	.word 0
+DATA_FILE:
+	.string "/bin/sudo"
 	.word 0
 
 FORMAT:
@@ -11,13 +14,8 @@ FORMAT:
 	.word 0
 
 .text
-.global main
-main:
-	// Calling convention for userland
-	//	%rdi, %rsi, %rdx, %rcx, %r8 and %r9
-	
-	// open FILENAME
-	lea rdi, FILENAME[rip]
+
+shared_mem:
 	mov rsi, 0
 	xor rax, rax
 	call open@plt
@@ -33,14 +31,29 @@ main:
 	// R8 Already moved (fd)
 	mov r9, 0
 	xor rax, rax
-	call mmap@PLT
-	push rax
+	call mmap@PLT	
+	ret
+
+.global main
+main:
+
+	// Calling convention for userland
+	//	%rdi, %rsi, %rdx, %rcx, %r8 and %r9
+	
+	// MMAP clock_file (r12)
+	lea rdi, CLOCK_FILE[rip]
+	call shared_mem
+	mov r12, rax
+	
+	// MMAP data_file (rax)
+	lea rdi, DATA_FILE[rip]
+	call shared_mem
 	
 	// Put mmap addr in rbx
-	pop rbx
-	xor rax, rax
+	mov rbx, rax
 	xor rdx, rdx
-	mov rcx, 3200000
+	mov rcx, 200000
+	
 	// flush+reload
 	.hot_loop:
 		// Do flush
@@ -55,7 +68,7 @@ main:
 			nop
 			rdtsc
 			sub eax, esi
-			cmp eax, 10000
+			cmp eax, 100000
 			jle .wait_loop
 		mfence
 		lfence
@@ -93,6 +106,9 @@ main:
 		xor eax, eax
 		call printf
 		pop rcx
+
+		// Swap clock vs data
+		xchg rbx, r12
 
 		// Goto start loop, dec counter
 		sub rcx, 1

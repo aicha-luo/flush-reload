@@ -29,9 +29,9 @@ def read_data(filename):
             else:
                 # If zero, check if 1s present both before and ahead
                 #   Used for smoothing
-                back_min = max(i-100,0)
+                back_min = max(i-10,0)
                 back = sum(data[back_min:i])
-                forward = sum(data[i:i+100])
+                forward = sum(data[i:i+10])
                 
                 if back and forward:
                     data_array.append(1)
@@ -43,16 +43,38 @@ def read_data(filename):
 def clock_bounds(data_array):
     bounds = []
     last = data_array[0]
+    normal_size = 0
 
     for i in range(len(data_array)):
         num = data_array[i]
-        if num != last:
-            if len(bounds) == 0:
-                last = num
-                bounds.append(i)
-            elif i-bounds[-1] > 7100:
-                last = num
-                bounds.append(i)
+                
+        if normal_size != 0 and (normal_size * 1.5) < i-bounds[-1]:
+            pass
+        elif num != last:
+            if len(bounds) == 1:
+                normal_size = i-bounds[0]
+
+            elif len(bounds) > 1:
+                if (normal_size / 1.5) > i-bounds[-1]:
+                        continue
+        else:
+            continue
+            
+        last = num
+        bounds.append(i)
+        '''
+        if len(bounds) == 0:
+            # First one might be different size
+            last = num
+            bounds.append(i)
+        elif len(bounds) == 1:
+            # Use second for normal size
+            last = num
+            bounds.append(i)
+        elif i-bounds[-1] > 200:
+            last = num
+            bounds.append(i)
+        '''
     return bounds
 
 def get_bits(bounds, data_signal):
@@ -87,9 +109,11 @@ data_signal  = read_data(sys.argv[2])
 bounds = clock_bounds(clock_signal)
 
 last = 0
+c = 0
 for b in bounds:
-    print(last, b, b-last, sum(data_signal[last:b]))
+    print(c,last, b, b-last, sum(data_signal[last:b]))
     last = b
+    c+=1
 
 bits = get_bits(bounds, data_signal)
 

@@ -7,7 +7,7 @@
 
 #define PAGE_SIZE 4096
 #define READ_SIZE 4096
-#define DELAY 100000000
+#define DELAY 10000000
 
 #define SHARED_FILE "/bin/sudo"
 #define CLOCK_FILE "/bin/whoami"
