@@ -29,9 +29,10 @@ def read_data(filename):
             else:
                 # If zero, check if 1s present both before and ahead
                 #   Used for smoothing
-                back_min = max(i-10,0)
+
+                back_min = max(i-40,0)
                 back = sum(data[back_min:i])
-                forward = sum(data[i:i+10])
+                forward = sum(data[i:i+40])
                 
                 if back and forward:
                     data_array.append(1)
@@ -48,14 +49,14 @@ def clock_bounds(data_array):
     for i in range(len(data_array)):
         num = data_array[i]
                 
-        if normal_size != 0 and (normal_size * 1.5) < i-bounds[-1]:
+        if normal_size != 0 and (normal_size * 1.3) < i-bounds[-1]:
             pass
         elif num != last:
             if len(bounds) == 1:
                 normal_size = i-bounds[0]
 
             elif len(bounds) > 1:
-                if (normal_size / 1.5) > i-bounds[-1]:
+                if (normal_size / 1.3) > i-bounds[-1]:
                         continue
         else:
             continue
@@ -86,7 +87,7 @@ def get_bits(bounds, data_signal):
         size = high-low
 
         s = sum(data_signal[low:high])
-        if s > (size/2):
+        if s > (size/1.4):
             bits.append(1)
         else:
             bits.append(0)

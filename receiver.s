@@ -52,8 +52,10 @@ main:
 	// Put mmap addr in rbx
 	mov rbx, rax
 	xor rdx, rdx
-	mov rcx, 200000
-	
+
+	// Fix frame for printf
+	push rcx
+
 	// flush+reload
 	.hot_loop:
 		// Do flush
@@ -65,10 +67,9 @@ main:
 		rdtsc
 		mov esi, eax
 		.wait_loop:
-			nop
 			rdtsc
 			sub eax, esi
-			cmp eax, 100000
+			cmp eax, 50000
 			jle .wait_loop
 		mfence
 		lfence
@@ -90,27 +91,22 @@ main:
 		.is_one:
 		// 200 instructions to simulate load
 		// Keep us on track
-		mov eax, 200
-		.fake_load:
-			nop
-			sub eax, 1
-			jnz .fake_load
+		//mov eax, 200
+		//.fake_load:
+		//	nop
+		//	sub eax, 1
+		//	jnz .fake_load
 		mov eax, 1
 		.is_after:
 		
-		// We needed a push to fix frame,
-		push rcx
 		// Print result (1 or 0)
 		lea rdi, FORMAT[rip] 
 		mov esi, eax
 		xor eax, eax
 		call printf
-		pop rcx
 
 		// Swap clock vs data
 		xchg rbx, r12
 
-		// Goto start loop, dec counter
-		sub rcx, 1
-		jnz .hot_loop
+		jmp .hot_loop
 	ret
